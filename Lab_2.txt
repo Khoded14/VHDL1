@@ -1,0 +1,252 @@
+port (  current_temp : in bit_vector(6 downto 0);
+
+            desired_temp : in bit_vector(6 downto 0);
+
+          display_select : in bit;
+
+                    cool : in bit;
+
+                    heat : in bit;
+
+            temp_display : out bit_vector(6 downto 0);
+
+                  a_c_on : out bit;
+
+              furnace_on : out bit);
+
+end MUX;
+
+
+
+architecture Behavioral of MUX is
+
+
+
+begin
+
+
+
+    process (current_temp, desired_temp, display_select)
+
+    begin
+
+        if display_select = '1' then
+
+            temp_display <= current_temp;
+
+        else
+
+            temp_display <= desired_temp;
+
+        end if;
+
+    end process;
+
+   
+
+    process (current_temp, desired_temp, cool)
+
+    begin
+
+        if (desired_temp < current_temp and cool = '1') then
+
+            a_c_on <= '1';
+
+        else
+
+            a_c_on <= '0';
+
+        end if;
+
+    end process;
+
+   
+
+    process (current_temp, desired_temp, heat)
+
+    begin       
+
+        if (desired_temp > current_temp and heat = '1') then
+
+            furnace_on <= '1';
+
+        else
+
+            furnace_on <= '0';
+
+        end if;
+
+    end process;
+
+
+
+end Behavioral;
+
+--VHDL:
+
+entity TEMPMUX is
+
+
+
+port ( CURRENT_TEMP : in bit_vector(6 downto 0);
+
+       DESIRED_TEMP : in bit_vector(6 downto 0);
+
+               DISPLAY_SELECT : in bit;
+
+       COOL : in bit;
+
+       HEAT : in bit;
+
+               TEMP_DISPLAY : out bit_vector(6 downto 0);
+
+       A_C_ON : out bit;
+
+       FURNACE_ON : out bit);
+
+end TEMPMUX;
+
+
+
+architecture BEHAV of TEMPMUX is
+
+begin
+
+
+
+process(CURRENT_TEMP,DESIRED_TEMP,DISPLAY_SELECT)
+
+begin
+
+if DISPLAY_SELECT = '1' then
+
+TEMP_DISPLAY <= CURRENT_TEMP;
+
+else
+
+TEMP_DISPLAY <= DESIRED_TEMP;
+
+end if;
+
+end process;
+
+
+
+process(COOL,HEAT)
+
+begin
+
+if COOL = '0' and HEAT = '0' then
+
+FURNACE_ON <= '0';
+
+A_C_ON <= '0';
+
+elsif COOL = '1' and HEAT = '0' then
+
+if CURRENT_TEMP > DESIRED_TEMP then
+
+A_C_ON <= '1';
+
+FURNACE_ON <= '0';
+
+else
+
+A_C_ON <= '0';
+
+FURNACE_ON <= '0';
+
+end if;
+
+elsif COOL = '0' and HEAT = '1' then
+
+if CURRENT_TEMP < DESIRED_TEMP then
+
+FURNACE_ON <= '1';
+
+A_C_ON <= '0';
+
+else
+
+FURNACE_ON <= '0';
+
+A_C_ON <= '0';
+
+end if;
+
+else  -- If both COOL and HEAT are 1 then the temperature should decide which device we turn on: The AC or the FURNACE.
+
+if CURRENT_TEMP < DESIRED_TEMP then
+
+FURNACE_ON <= '1';
+
+A_C_ON <= '0';
+
+else
+
+FURNACE_ON <= '0';
+
+A_C_ON <= '1';
+
+end if;
+
+end if;
+
+end process;
+
+
+
+end BEHAV;
+
+
+
+--My code 
+
+entity thermo is 
+port (current_temp : in bit_vector(6 downto 0); 
+      desired_temp : in bit_vector(6 downto 0); 
+      display_sel  : in bit; 
+      COOL         : in bit; 
+      HEAT         : in bit;
+      AC_ON        : out bit; 
+      Furnace_ON   : out bit; 
+      display_temp : out bit_vector(6 downto 0)); 
+
+end thermo; 
+
+architecture test of thermo is 
+begin 
+process(current_temp,desired_temp,display_sel,COOL,HEAT) 
+begin 
+
+if display_sel = '1' then 
+display_temp <= current_temp; 
+else 
+display_temp <= desired_temp;
+end if; 
+-- Other Bits added to it
+if ((current_temp) > (desired_temp) and COOL = '1' and HEAT = '0') then
+ AC_ON <= COOL; 
+ Furnace_ON <= HEAT; 
+elsif((current_temp) < (desired_temp) and HEAT = '1' and COOL = '0') then
+Furnace_ON <= HEAT; 
+AC_ON <= COOL;
+elsif(HEAT = '1' and COOL = '1') then
+AC_ON <= '0'; 
+Furnace_ON <= '0';
+else 
+AC_ON <= COOL;
+Furnace_ON <= HEAT;
+end if; 
+end process; 
+end test;
+
+
+
+
+
+
+
+
+
+
